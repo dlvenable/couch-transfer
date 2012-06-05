@@ -21,6 +21,7 @@ import com.allogy.io.NoNewEditsInputStream;
 import org.ektorp.CouchDbConnector;
 import org.ektorp.Options;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -70,8 +71,11 @@ public class BufferedCouchImporter implements CouchImporter
     private void importMultipartImmediately(ImportCommand importCommand)
     {
         Options updateOptions = new Options().param("new_edits", "false");
+        long spareBuffer = bufferSize - sizeOfBufferedImportCommands;
+        BufferedInputStream bufferedInputStream = new BufferedInputStream(importCommand.getDataStream(), (int)spareBuffer);
+
         importCommand.getTargetCouchDbConnector().updateMultipart(importCommand.getId(),
-                importCommand.getDataStream(), importCommand.getBoundary(),
+                bufferedInputStream, importCommand.getBoundary(),
                 importCommand.getSize(), updateOptions);
     }
 

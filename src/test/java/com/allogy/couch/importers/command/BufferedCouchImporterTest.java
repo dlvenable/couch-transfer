@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.util.UUID;
 
@@ -88,7 +89,7 @@ public class BufferedCouchImporterTest
 
         ArgumentCaptor<Options> optionsArgumentCaptor = ArgumentCaptor.forClass(Options.class);
         verify(targetCouchDbConnector).updateMultipart(eq(id),
-                eq(dataInputStream), eq(boundary), eq(size),
+                any(BufferedInputStream.class), eq(boundary), eq(size),
                 optionsArgumentCaptor.capture());
 
         Options updateOptions = optionsArgumentCaptor.getValue();
