@@ -17,6 +17,10 @@
 package com.allogy.couch.importers;
 
 import com.allogy.couch.filter.DocumentFilter;
+import com.allogy.couch.importers.command.BasicImportCommand;
+import com.allogy.couch.importers.command.CouchImporter;
+import com.allogy.couch.importers.command.ImmediateCouchImporter;
+import com.allogy.couch.importers.command.ImportCommand;
 import com.allogy.io.UnCloseableInputStream;
 import com.allogy.mime.MimeStreamingReader;
 import com.google.common.base.Predicate;
@@ -25,7 +29,6 @@ import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
 import org.apache.http.NameValuePair;
 import org.ektorp.CouchDbConnector;
-import org.ektorp.Options;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -34,11 +37,18 @@ import java.io.InputStream;
 public class MimeCouchDocumentImporter implements CouchDocumentImporter
 {
 	private DocumentFilter documentFilter;
+    private CouchImporter couchImporter;
 
 	public MimeCouchDocumentImporter(DocumentFilter documentFilter)
 	{
-		this.documentFilter = documentFilter;
+        this(documentFilter, new ImmediateCouchImporter());
 	}
+
+    public MimeCouchDocumentImporter(DocumentFilter documentFilter, CouchImporter couchImporter)
+    {
+        this.documentFilter = documentFilter;
+        this.couchImporter = couchImporter;
+    }
 
 	public void importDocument(CouchDbConnector couchDbConnector, InputStream inputStream) throws IOException
 	{
@@ -62,16 +72,10 @@ public class MimeCouchDocumentImporter implements CouchDocumentImporter
 		long size = Long.parseLong(contentLength);
 
 		InputStream uploadStream = new UnCloseableInputStream(inputStream);
-		Options updateOptions = new Options().param("new_edits", "false");
-		if (boundary != null)
-		{
-			couchDbConnector.updateMultipart(id,
-					uploadStream, boundary, size, updateOptions);
-		}
-		else
-		{
-			couchDbConnector.update(id, uploadStream, size, updateOptions);
-		}
+
+        ImportCommand importCommand = new BasicImportCommand(couchDbConnector, id, uploadStream, size, boundary);
+
+        couchImporter.commandImport(importCommand);
 	}
 
 	private static Header getHeader(Iterable<Header> headers, final String headerName)
