@@ -17,6 +17,7 @@
 package com.allogy.couch.importers.command;
 
 import com.allogy.io.BulkUpdateInputStream;
+import com.allogy.io.NoNewEditsInputStream;
 import org.ektorp.CouchDbConnector;
 import org.ektorp.Options;
 
@@ -107,7 +108,7 @@ public class BufferedCouchImporter implements CouchImporter
             bufferedInputStreams.add(importCommand.getDataStream());
         }
 
-        BulkUpdateInputStream bulkUpdateInputStream = new BulkUpdateInputStream(bufferedInputStreams);
+        InputStream bulkUpdateInputStream = new NoNewEditsInputStream(new BulkUpdateInputStream(bufferedInputStreams));
         targetCouchDbConnector.executeBulk(bulkUpdateInputStream);
 
         bufferedImportCommands.clear();
