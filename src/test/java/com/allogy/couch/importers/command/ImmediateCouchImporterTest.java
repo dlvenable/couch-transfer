@@ -93,4 +93,10 @@ public class ImmediateCouchImporterTest
         assertThat(updateOptions.getOptions(), notNullValue());
         assertThat(updateOptions.getOptions().get("new_edits"), is("false"));
     }
+
+    @Test
+    public void finishImport_is_ok()
+    {
+        createObjectUnderTest().finishImport();
+    }
 }

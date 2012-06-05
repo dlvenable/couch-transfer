@@ -36,4 +36,7 @@ public class ImmediateCouchImporter implements CouchImporter
                     updateOptions);
         }
     }
+
+    public void finishImport()
+    { }
 }

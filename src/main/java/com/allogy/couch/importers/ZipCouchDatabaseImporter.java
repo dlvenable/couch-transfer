@@ -39,5 +39,7 @@ public class ZipCouchDatabaseImporter implements CouchDatabaseImporter
 		{
 			couchDocumentImporter.importDocument(couchDbConnector, zipInputStream);
 		}
+
+        couchDocumentImporter.finishImport();
 	}
 }

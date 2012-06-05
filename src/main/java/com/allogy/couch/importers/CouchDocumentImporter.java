@@ -30,4 +30,9 @@ public interface CouchDocumentImporter
 	 * @throws java.io.IOException an error occurred reading or writing the document
 	 */
 	void importDocument(CouchDbConnector couchDbConnector, InputStream inputStream) throws IOException;
+
+    /**
+     * Finishes an import of a Couch database.
+     */
+    void finishImport();
 }

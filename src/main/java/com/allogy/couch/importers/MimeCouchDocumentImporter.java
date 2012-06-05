@@ -78,7 +78,12 @@ public class MimeCouchDocumentImporter implements CouchDocumentImporter
         couchImporter.commandImport(importCommand);
 	}
 
-	private static Header getHeader(Iterable<Header> headers, final String headerName)
+    public void finishImport()
+    {
+        couchImporter.finishImport();
+    }
+
+    private static Header getHeader(Iterable<Header> headers, final String headerName)
 	{
 		return Iterables.find(headers, new Predicate<Header>()
 		{

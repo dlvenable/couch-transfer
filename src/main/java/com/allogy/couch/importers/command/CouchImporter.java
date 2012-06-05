@@ -19,4 +19,6 @@ package com.allogy.couch.importers.command;
 public interface CouchImporter
 {
     void commandImport(ImportCommand importCommand);
+
+    void finishImport();
 }
