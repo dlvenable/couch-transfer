@@ -19,6 +19,8 @@ package com.allogy.integration_tests;
 import com.allogy.couch.filter.IncludeAllDocumentFilter;
 import com.allogy.couch.exporters.*;
 import com.allogy.couch.importers.*;
+import com.allogy.couch.importers.command.BufferedCouchImporter;
+import com.allogy.couch.importers.command.ImmediateCouchImporter;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import org.ektorp.CouchDbConnector;
@@ -65,24 +67,6 @@ public class ExportImportDatabase
 		}
 	}
 
-	public void createRandomDatabase(List<CouchDbConnector> couchDbConnectors, Map<String, Map<String, Object>> dbToSingleDocumentMap)
-	{
-		String databaseName = "test" + UUID.randomUUID().toString();
-		CouchDbConnector couchDbConnector = instance.createConnector(databaseName, true);
-		couchDbConnectors.add(couchDbConnector);
-
-		Map<String, Object> document = new HashMap<String, Object>();
-		document.put("someValue", UUID.randomUUID().toString());
-
-		couchDbConnector.create(document);
-
-		String documentId = (String) document.get("_id");
-		assertThat(documentId, notNullValue());
-		assertThat(couchDbConnector.contains(documentId), is(true));
-
-		dbToSingleDocumentMap.put(couchDbConnector.getDatabaseName(), document);
-	}
-
 	@After
 	public void tearDown()
 	{
@@ -92,63 +76,97 @@ public class ExportImportDatabase
 			exportFile.delete();
 	}
 
-	@Test
-	public void export_database_and_import_it_back() throws IOException
-	{
-		CouchDocumentExporter documentExporter = new MimeCouchDocumentExporter();
-		CouchDatabaseExporter databaseExporter = new ZipCouchDatabaseExporter(documentExporter);
-		CouchMultipleDatabaseExporter multipleDatabaseExporter = new ZipCouchMultipleDatabaseExporter(databaseExporter);
+    public void createRandomDatabase(List<CouchDbConnector> couchDbConnectors, Map<String, Map<String, Object>> dbToSingleDocumentMap)
+    {
+        String databaseName = "test" + UUID.randomUUID().toString();
+        CouchDbConnector couchDbConnector = instance.createConnector(databaseName, true);
+        couchDbConnectors.add(couchDbConnector);
 
-		OutputStream exportOutputStream = new FileOutputStream(exportFile);
-		try
-		{
-			multipleDatabaseExporter.export(couchDbConnectors, exportOutputStream);
-		}
-		finally
-		{
-			exportOutputStream.close();
-		}
+        Map<String, Object> document = new HashMap<String, Object>();
+        document.put("someValue", UUID.randomUUID().toString());
 
-		assertThat(exportFile.exists(), is(true));
+        couchDbConnector.create(document);
 
-		Iterable<String> exportedDatabaseNames = Iterables.transform(couchDbConnectors, new Function<CouchDbConnector, String>()
-		{
-			public String apply(@Nullable CouchDbConnector couchDbConnector)
-			{
-				return couchDbConnector.path();
-			}
-		});
+        String documentId = (String) document.get("_id");
+        assertThat(documentId, notNullValue());
+        assertThat(couchDbConnector.contains(documentId), is(true));
 
-		for(String databaseName: exportedDatabaseNames)
-			instance.deleteDatabase(databaseName);
+        dbToSingleDocumentMap.put(couchDbConnector.getDatabaseName(), document);
+    }
 
-		CouchDocumentImporter documentImporter = new MimeCouchDocumentImporter(IncludeAllDocumentFilter.documentFilter());
-		CouchDatabaseImporter databaseImporter = new ZipCouchDatabaseImporter(documentImporter);
-		CouchMultipleDatabaseImporter multipleDatabaseImporter = new ZipCouchMultipleDatabaseImporter(databaseImporter);
+    private void testExportAndImport(CouchDocumentImporter documentImporter) throws IOException
+    {
+        CouchDocumentExporter documentExporter = new MimeCouchDocumentExporter();
+        CouchDatabaseExporter databaseExporter = new ZipCouchDatabaseExporter(documentExporter);
+        CouchMultipleDatabaseExporter multipleDatabaseExporter = new ZipCouchMultipleDatabaseExporter(databaseExporter);
 
-		InputStream importInputStream = new FileInputStream(exportFile);
+        OutputStream exportOutputStream = new FileOutputStream(exportFile);
+        try
+        {
+            multipleDatabaseExporter.export(couchDbConnectors, exportOutputStream);
+        }
+        finally
+        {
+            exportOutputStream.close();
+        }
 
-		try
-		{
-			multipleDatabaseImporter.importDatabases(instance, importInputStream);
-		}
-		finally
-		{
-			importInputStream.close();
-		}
+        assertThat(exportFile.exists(), is(true));
 
-		for(String databaseName: exportedDatabaseNames)
-		{
-			DbPath dbPath = new DbPath(databaseName);
-			assertTrue(databaseName, instance.checkIfDbExists(dbPath));
+        Iterable<String> exportedDatabaseNames = Iterables.transform(couchDbConnectors, new Function<CouchDbConnector, String>()
+        {
+            public String apply(@Nullable CouchDbConnector couchDbConnector)
+            {
+                return couchDbConnector.path();
+            }
+        });
 
-			Map<String, Object> expectedSingleObject = databaseToSingleDocumentMap.get(dbPath.getDbName());
+        for(String databaseName: exportedDatabaseNames)
+            instance.deleteDatabase(databaseName);
 
-			CouchDbConnector dbConnector = instance.createConnector(databaseName, false);
-			Map<String, Object> actualDocument = dbConnector.find(Map.class, (String) expectedSingleObject.get("_id"));
+        CouchDatabaseImporter databaseImporter = new ZipCouchDatabaseImporter(documentImporter);
+        CouchMultipleDatabaseImporter multipleDatabaseImporter = new ZipCouchMultipleDatabaseImporter(databaseImporter);
 
-			assertThat(actualDocument, notNullValue());
-			assertThat(actualDocument, is(expectedSingleObject));
-		}
-	}
+        InputStream importInputStream = new FileInputStream(exportFile);
+
+        try
+        {
+            multipleDatabaseImporter.importDatabases(instance, importInputStream);
+        }
+        finally
+        {
+            importInputStream.close();
+        }
+
+        for(String databaseName: exportedDatabaseNames)
+        {
+            DbPath dbPath = new DbPath(databaseName);
+            assertTrue(databaseName, instance.checkIfDbExists(dbPath));
+
+            Map<String, Object> expectedSingleObject = databaseToSingleDocumentMap.get(dbPath.getDbName());
+
+            CouchDbConnector dbConnector = instance.createConnector(databaseName, false);
+            Map<String, Object> actualDocument = dbConnector.find(Map.class, (String) expectedSingleObject.get("_id"));
+
+            assertThat(actualDocument, notNullValue());
+            assertThat(actualDocument, is(expectedSingleObject));
+        }
+    }
+
+    @Test
+    public void export_database_and_import_it_back_with_immediate() throws IOException
+    {
+        CouchDocumentImporter documentImporter = new MimeCouchDocumentImporter(IncludeAllDocumentFilter.documentFilter(),
+                new ImmediateCouchImporter());
+
+        testExportAndImport(documentImporter);
+    }
+
+    @Test
+    public void export_database_and_import_it_back_with_buffered() throws IOException
+    {
+        CouchDocumentImporter documentImporter = new MimeCouchDocumentImporter(IncludeAllDocumentFilter.documentFilter(),
+                new BufferedCouchImporter(1024));
+
+        testExportAndImport(documentImporter);
+    }
 }
