@@ -21,7 +21,7 @@
     <name>Couch Transfer</name>
     <groupId>com.allogy</groupId>
     <artifactId>couch-transfer</artifactId>
-    <version>1.0</version>
+    <version>1.1-SNAPSHOT</version>
 
     <description>
         A Java library to support exporting and importing Couch databases.
@@ -31,7 +31,7 @@
         <connection>scm:git:git@github.com:dlvenable/couch-transfer.git</connection>
         <url>scm:git:git@github.com:dlvenable/couch-transfer.git</url>
         <developerConnection>scm:git:git@github.com:dlvenable/couch-transfer.git</developerConnection>
-      <tag>v1.0</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <dependencies>
