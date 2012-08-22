@@ -33,7 +33,7 @@
         <dependency>
             <groupId>org.ektorp</groupId>
             <artifactId>org.ektorp</artifactId>
-            <version>1.3.1-SNAPSHOT</version>
+            <version>[1.3,)</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -69,25 +69,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <repositories>
-        <repository>
-            <id>allogy-maven-public</id>
-            <name>Allogy public Maven release repository</name>
-            <url>https://s3.amazonaws.com/allogy.maven.public/release</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>allogy-maven-snapshot-public</id>
-            <name>Allogy public Maven snapshot repository</name>
-            <url>https://s3.amazonaws.com/allogy.maven.public/snapshot</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
-    </repositories>
 
     <distributionManagement>
         <snapshotRepository>
