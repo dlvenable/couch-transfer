@@ -29,6 +29,12 @@
         A Java library to support exporting and importing Couch databases.
     </description>
 
+    <scm>
+        <connection>scm:git:git://github.com/dlvenable/couch-transfer.git</connection>
+        <developerConnection>scm:git:git@github.com:dlvenable/couch-transfer.git</developerConnection>
+        <url>https://github.com/dlvenable/couch-transfer</url>
+    </scm>
+
     <dependencies>
         <dependency>
             <groupId>org.ektorp</groupId>
