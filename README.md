@@ -11,9 +11,6 @@ Features
  * Provides a mechanism for filtering on import, allowing existing documents to be ignored
  * Uses [Ektorp][ektorp] for accessing Couch
 
-Development Status
-------------------
-Currently awaiting some changes to Ektorp before being release as 1.0. This product is using a custom Ektorp snapshot build for the time being.
 
 Export
 ------
@@ -63,21 +60,13 @@ Include Using Maven
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-        <repository>
-            <id>allogy-maven-snapshot-public</id>
-            <name>Allogy public Maven snapshot repository</name>
-            <url>https://s3.amazonaws.com/allogy.maven.public/snapshot</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
     </repositories>
 
     <dependencies>
         <dependency>
             <groupId>com.allogy</groupId>
             <artifactId>couch-transfer</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.1</version>
         </dependency>
     </dependencies>
 
