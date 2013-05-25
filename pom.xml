@@ -32,7 +32,7 @@
         <developerConnection>scm:git:git@github.com:dlvenable/couch-transfer.git</developerConnection>
         <url>https://github.com/dlvenable/couch-transfer</url>
         <tag>HEAD</tag>
-  </scm>
+    </scm>
 
     <dependencies>
         <dependency>
@@ -43,7 +43,7 @@
         <dependency>
             <groupId>com.allogy.couch</groupId>
             <artifactId>couch-multipart</artifactId>
-            <version>1.0</version>
+            <version>1.1</version>
         </dependency>
         <dependency>
             <groupId>commons-collections</groupId>
@@ -103,5 +103,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
